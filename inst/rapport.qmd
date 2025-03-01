@@ -1,0 +1,90 @@
+---
+title: "Rapport Quarto"
+author: "Estelle"
+format: html
+params:
+  commune: "Nom par défaut"
+  departement: "Nom par défaut"
+---
+
+```{r}
+# Chargement des librairies nécessaires
+packages <- c("dplyr", "ggplot2", "remotes", "quarto")
+installed <- rownames(installed.packages())
+
+for (pkg in packages) {
+  if (!pkg %in% installed) install.packages(pkg)
+  library(pkg, character.only = TRUE)
+}
+
+
+# Installation et chargement de la librairie depuis GitHub
+if (!requireNamespace("firstlibEstelle", quietly = TRUE)) {
+  remotes::install_github("estellemtz/firstlibEstelle")
+}
+library(firstlibEstelle)
+```
+
+#chargement des données
+
+```{r}
+# Charger les données
+elus_conseillers <- load_elus_conseillers()
+colnames(elus_conseillers) <- make.names(colnames(elus_conseillers))
+head(elus_conseillers)
+
+```
+
+#Filtrage des données en fonction des paramètres
+
+```{r}
+# Récupération des paramètres
+code_commune <- params$commune
+code_departement <- params$departement
+
+# Vérification des noms de colonnes après standardisation
+nom_col_commune <- "Code.de.la.commune"
+nom_col_departement <- "Code.du.departement"
+
+commune_data <- elus_conseillers %>%
+  filter(.data[[nom_col_commune]] == code_commune)
+
+departement_data <- elus_conseillers %>%
+  filter(.data[[nom_col_departement]] == code_departement)
+
+if (nrow(commune_data) == 0) stop(" Aucune donnée trouvée pour cette commune.")
+if (nrow(departement_data) == 0) stop("Aucune donnée trouvée pour ce département.")
+
+```
+
+#Création des objets commune et département
+
+```{r}
+commune_objet <- creer_commune(commune_data)
+departement_objet <- creer_departement(departement_data)
+
+summary(commune_objet)
+summary(departement_objet)
+
+
+```
+
+#Visualisation des données
+
+```{r}
+col_pro <- "Libellé.de.la.categorie.socio.professionnelle"
+col_pro <- make.names(col_pro)
+
+ggplot(commune_objet, aes(x = .data[[col_pro]])) +
+  geom_bar(fill = "blue") +
+  coord_flip() +
+  labs(
+    title = paste("Répartition des professions - Commune", code_commune),
+    x = "Profession",
+    y = "Nombre d'élus"
+  ) +
+  theme_minimal()
+
+
+```
+

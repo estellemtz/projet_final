@@ -1,0 +1,18 @@
+---
+title: "Générer un rapport d'analyses"
+output: html_document
+vignette: >
+  %\VignetteIndexEntry{Générer un rapport d'analyses}
+  %\VignetteEngine{quarto::quarto}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(projetFinal)
+```
