@@ -17,3 +17,6 @@ Imports:
     dplyr,
     rmarkdown,
     quarto
+ HEAD
+URL: https://estellemtz.github.io/projet/
+ 89c16e6 (ajout de la documentation pkgdown)

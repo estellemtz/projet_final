@@ -1,4 +1,7 @@
+ HEAD
 ^projetFinal\.Rproj$
+^.*\.Rproj$
+ 89c16e6 (ajout de la documentation pkgdown)
 ^\.Rproj\.user$
 ^_pkgdown\.yml$
 ^docs$

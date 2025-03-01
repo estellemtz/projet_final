@@ -1,0 +1,108 @@
+---
+title: "Rapport Quarto"
+author: "Estelle"
+format: html
+params:
+  code_commune: "44109"  # Code par défaut (Saint-Nazaire)
+  code_departement: "44"  # Loire-Atlantique
+---
+
+```{r}
+# Initialisation du projet avec renv
+if (!requireNamespace("renv", quietly = TRUE)) install.packages("renv")
+renv::init()
+
+# Chargement des librairies nécessaires
+library(quarto)
+library(dplyr)
+library(ggplot2)
+library(remotes)
+
+# Installation et chargement de la librairie depuis GitHub
+if (!requireNamespace("firstlibEstelle", quietly = TRUE)) {
+  remotes::install_github("estellemtz/firstlibEstelle")
+}
+library(firstlibEstelle)
+```
+
+#chargement des données 
+```{r}
+# Charger les données
+elus_conseillers <- load_elus_conseillers()
+
+# Nettoyage des noms de colonnes pour éviter les problèmes d'espaces
+colnames(elus_conseillers) <- make.names(colnames(elus_conseillers))
+
+# Vérification du contenu
+head(elus_conseillers)
+
+```
+
+#Filtrage des données en fonction des paramètres
+```{r}
+# Récupération des paramètres
+code_commune <- params$code_commune
+code_departement <- params$code_departement
+
+# Vérification des noms de colonnes après standardisation
+nom_col_commune <- "Code.de.la.commune"
+nom_col_departement <- "Code.du.departement"
+
+# Filtrage des données pour la commune et le département
+commune_data <- elus_conseillers %>%
+  filter(.data[[nom_col_commune]] == code_commune)
+
+departement_data <- elus_conseillers %>%
+  filter(.data[[nom_col_departement]] == code_departement)
+
+# Vérification de la présence de données
+if (nrow(commune_data) == 0) stop("⚠ Aucune donnée trouvée pour cette commune.")
+if (nrow(departement_data) == 0) stop("⚠ Aucune donnée trouvée pour ce département.")
+
+```
+
+#Création des objets commune et département
+```{r}
+# Création des objets à partir des données filtrées
+commune_objet <- creer_commune(commune_data)
+departement_objet <- creer_departement(departement_data)
+
+# Résumé des données
+summary(commune_objet)
+summary(departement_objet)
+
+```
+
+#Visualisation des données
+```{r}
+# Vérification et correction des noms de colonnes pour ggplot2
+col_pro <- "Libellé.de.la.categorie.socio.professionnelle"
+col_pro <- make.names(col_pro)  # Transformation si nécessaire
+
+# Graphique de la répartition des professions dans la commune sélectionnée
+ggplot(commune_objet, aes(x = .data[[col_pro]])) +
+  geom_bar(fill = "blue") +
+  coord_flip() +
+  labs(
+    title = paste("Répartition des professions - Commune", code_commune),
+    x = "Profession",
+    y = "Nombre d'élus"
+  ) +
+  theme_minimal()
+
+```
+
+#Génération du rapport avec différents paramètres
+
+```{r}
+quarto::quarto_render(
+  input = "rapport.qmd",
+  execute_params = list(
+    code_commune = "75056",  # Paris
+    code_departement = "75"  # Département de Paris
+  )
+)
+
+
+```
+

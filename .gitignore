@@ -1,3 +1,8 @@
 .Rproj.user
+HEAD
 inst/doc
+.Rhistory
+.RData
+.Ruserdata
+89c16e6 (ajout de la documentation pkgdown)
 docs
